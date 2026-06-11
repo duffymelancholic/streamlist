@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  listItems ListItem[] 
+}
+
+model ListItem {
+  id        String   @id @default(uuid())
+  tmdbId    Int      
+  title     String
+  posterPath String?
+  createdAt DateTime @default(now())
+
+  // Relational link back to the User who saved it
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  // Ensures a user can't add the exact same movie to their list twice
+  @@unique([userId, tmdbId]) 
+}
