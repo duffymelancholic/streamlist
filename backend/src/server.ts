@@ -1,9 +1,11 @@
 import { authRouter } from './auth';
+import { moviesRouter } from './routes/movies';
+import { watchlistRouter } from './routes/watchlist';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-// Load environment variables from a .env file (we'll create this later)
+// Load environment variables from a .env file
 dotenv.config();
 
 // Initialize the Express application
@@ -15,8 +17,10 @@ app.use(cors());
 // Middleware: Allows Express to understand JSON data sent in requests
 app.use(express.json());
 
-// Any request that starts with /api/auth will be handled by our authRouter
+// Routes registration
 app.use('/api/auth', authRouter);
+app.use('/api/movies', moviesRouter);
+app.use('/api/list', watchlistRouter);
 
 // A simple "Hello World" route to test if the server is working
 app.get('/api/health', (req, res) => {
