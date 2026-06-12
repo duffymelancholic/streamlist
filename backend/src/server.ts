@@ -1,3 +1,4 @@
+import { authRouter } from './auth';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -13,6 +14,9 @@ app.use(cors());
 
 // Middleware: Allows Express to understand JSON data sent in requests
 app.use(express.json());
+
+// Any request that starts with /api/auth will be handled by our authRouter
+app.use('/api/auth', authRouter);
 
 // A simple "Hello World" route to test if the server is working
 app.get('/api/health', (req, res) => {
