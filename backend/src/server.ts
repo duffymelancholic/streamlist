@@ -11,8 +11,14 @@ dotenv.config();
 // Initialize the Express application
 const app = express();
 
-// Middleware: Allows our frontend to communicate with this backend
-app.use(cors());
+// Middleware: Allows our frontend (localhost:3000) to communicate with this backend.
+// We must explicitly list 'Authorization' in allowedHeaders — without this, the browser
+// silently drops requests that send a Bearer token header.
+app.use(cors({
+  origin: 'http://localhost:3000',
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+}));
 
 // Middleware: Allows Express to understand JSON data sent in requests
 app.use(express.json());
