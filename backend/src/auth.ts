@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
+import { authenticate, AuthenticatedRequest } from './middleware/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from './prisma';
@@ -67,3 +68,25 @@ authRouter.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Something went wrong during login' });
   }
 });
+
+// GET PROFILE ROUTE
+// This allows the frontend to verify the session and load the user profile
+authRouter.get('/me', authenticate as any, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.userId!;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Something went wrong while retrieving profile' });
+  }
+});
+

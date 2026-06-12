@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #141414; /* Dark streaming theme background */
+  --foreground: #ffffff; /* White text */
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

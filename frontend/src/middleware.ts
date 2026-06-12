@@ -26,5 +26,6 @@ export const config = {
     '/signup',
     '/browse',
     '/mylist',
+    '/search',
   ]
 }
