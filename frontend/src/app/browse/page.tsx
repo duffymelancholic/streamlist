@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import MovieCard from '@/components/MovieCard';
 import MovieModal from '@/components/MovieModal';
 import Navbar from '@/components/Navbar';
@@ -21,6 +22,7 @@ interface GenreRow {
 }
 
 export default function BrowsePage() {
+  const router = useRouter();
   const [genres, setGenres] = useState<GenreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,6 +34,13 @@ export default function BrowsePage() {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; token=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return undefined;
+  };
+
+  // Called whenever the backend returns 401 — clears stale cookie and sends user to login
+  const handleAuthError = () => {
+    document.cookie = 'token=; path=/; max-age=0';
+    router.push('/login');
   };
 
   useEffect(() => {
@@ -47,6 +56,12 @@ export default function BrowsePage() {
         if (!browseRes.ok) throw new Error('Failed to fetch movies');
 
         const browseData = await browseRes.json();
+
+        // If the list fetch returned 401 the token is bad — redirect to login
+        if (listRes.status === 401) {
+          handleAuthError();
+          return;
+        }
         const listData = listRes.ok ? await listRes.json() : [];
 
         setGenres([
@@ -79,7 +94,7 @@ export default function BrowsePage() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Only update local state if the server confirmed the deletion
+      if (res.status === 401) { handleAuthError(); return; }
       if (res.ok) {
         setWatchlist((prev) => prev.filter((id) => id !== movie.id));
       } else {
@@ -99,7 +114,7 @@ export default function BrowsePage() {
           posterPath: movie.poster_path,
         }),
       });
-      // Only update local state if the server confirmed the save
+      if (res.status === 401) { handleAuthError(); return; }
       if (res.ok) {
         setWatchlist((prev) => [...prev, movie.id]);
       } else {

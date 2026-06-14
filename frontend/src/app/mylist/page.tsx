@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MovieModal from '@/components/MovieModal';
 
@@ -24,6 +25,7 @@ interface MovieDetail {
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w300';
 
 export default function MyListPage() {
+  const router = useRouter();
   const [items, setItems] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState<MovieDetail | null>(null);
@@ -33,6 +35,12 @@ export default function MyListPage() {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; token=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return undefined;
+  };
+
+  const handleAuthError = () => {
+    document.cookie = 'token=; path=/; max-age=0';
+    router.push('/login');
   };
 
   useEffect(() => {
@@ -41,6 +49,7 @@ export default function MyListPage() {
         const res = await fetch('http://localhost:4000/api/list', {
           headers: { Authorization: `Bearer ${getToken()}` },
         });
+        if (res.status === 401) { handleAuthError(); return; }
         if (!res.ok) throw new Error('Failed to fetch your list');
         const data = await res.json();
         setItems(data);
@@ -66,13 +75,16 @@ export default function MyListPage() {
   };
 
   const handleRemove = async (tmdbId: number) => {
-    await fetch(`http://localhost:4000/api/list/remove/${tmdbId}`, {
+    const res = await fetch(`http://localhost:4000/api/list/remove/${tmdbId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${getToken()}` },
     });
-    setItems((prev) => prev.filter((item) => item.tmdbId !== tmdbId));
-    setWatchlistIds((prev) => prev.filter((id) => id !== tmdbId));
-    if (selectedMovie?.id === tmdbId) setSelectedMovie(null);
+    if (res.status === 401) { handleAuthError(); return; }
+    if (res.ok) {
+      setItems((prev) => prev.filter((item) => item.tmdbId !== tmdbId));
+      setWatchlistIds((prev) => prev.filter((id) => id !== tmdbId));
+      if (selectedMovie?.id === tmdbId) setSelectedMovie(null);
+    }
   };
 
   const handleWatchlistToggle = async (movie: MovieDetail) => {

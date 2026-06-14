@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import MovieCard from '@/components/MovieCard';
 import MovieModal from '@/components/MovieModal';
@@ -18,6 +18,7 @@ interface Movie {
 
 function SearchResults() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get('q') || '';
 
   const [results, setResults] = useState<Movie[]>([]);
@@ -29,6 +30,12 @@ function SearchResults() {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; token=`);
     if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return undefined;
+  };
+
+  const handleAuthError = () => {
+    document.cookie = 'token=; path=/; max-age=0';
+    router.push('/login');
   };
 
   useEffect(() => {
@@ -45,6 +52,7 @@ function SearchResults() {
         ]);
 
         const searchData = searchRes.ok ? await searchRes.json() : [];
+        if (listRes.status === 401) { handleAuthError(); return; }
         const listData = listRes.ok ? await listRes.json() : [];
 
         setResults(searchData);
@@ -68,6 +76,7 @@ function SearchResults() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (res.status === 401) { handleAuthError(); return; }
       if (res.ok) {
         setWatchlist((prev) => prev.filter((id) => id !== movie.id));
       }
@@ -84,6 +93,7 @@ function SearchResults() {
           posterPath: movie.poster_path,
         }),
       });
+      if (res.status === 401) { handleAuthError(); return; }
       if (res.ok) {
         setWatchlist((prev) => [...prev, movie.id]);
       }
