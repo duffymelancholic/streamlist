@@ -15,7 +15,7 @@ const app = express();
 // We must explicitly list 'Authorization' in allowedHeaders — without this, the browser
 // silently drops requests that send a Bearer token header.
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
 }));
