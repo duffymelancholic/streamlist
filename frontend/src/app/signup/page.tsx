@@ -29,8 +29,9 @@ export default function SignupPage() {
 
       // Automatically log the user in with the token returned from signup
       login(data.token, data.user);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Signup failed';
+      setError(message);
     }
   };
 

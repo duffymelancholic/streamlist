@@ -75,6 +75,39 @@ export default function MyListPage() {
     if (selectedMovie?.id === tmdbId) setSelectedMovie(null);
   };
 
+  const handleWatchlistToggle = async (movie: MovieDetail) => {
+    const token = getToken();
+    const isInList = watchlistIds.includes(movie.id);
+
+    if (isInList) {
+      await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setItems((prev) => prev.filter((item) => item.tmdbId !== movie.id));
+      setWatchlistIds((prev) => prev.filter((id) => id !== movie.id));
+    } else {
+      const res = await fetch('http://localhost:4000/api/list/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          tmdbId: movie.id,
+          title: movie.title,
+          posterPath: movie.poster_path,
+        }),
+      });
+
+      if (res.ok) {
+        const addedItem = await res.json();
+        setItems((prev) => [addedItem, ...prev]);
+        setWatchlistIds((prev) => [...prev, movie.id]);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#141414] text-white">
       <Navbar />
@@ -130,7 +163,7 @@ export default function MyListPage() {
           movie={selectedMovie}
           isInWatchlist={watchlistIds.includes(selectedMovie.id)}
           onClose={() => setSelectedMovie(null)}
-          onWatchlistToggle={() => handleRemove(selectedMovie.id)}
+          onWatchlistToggle={() => handleWatchlistToggle(selectedMovie)}
         />
       )}
     </div>

@@ -48,7 +48,7 @@ function SearchResults() {
         const listData = listRes.ok ? await listRes.json() : [];
 
         setResults(searchData);
-        setWatchlist(listData.map((item: any) => item.tmdbId));
+        setWatchlist(listData.map((item: { tmdbId: number }) => item.tmdbId));
       } catch (err) {
         console.error(err);
       } finally {
@@ -99,7 +99,7 @@ function SearchResults() {
       )}
 
       {!loading && query && results.length === 0 && (
-        <p className="text-gray-400 mt-10">No results found for "{query}".</p>
+        <p className="text-gray-400 mt-10">No results found for &quot;{query}&quot;.</p>
       )}
 
       <div className="flex flex-wrap gap-4 mt-6">

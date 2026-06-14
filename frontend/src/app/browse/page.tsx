@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import MovieCard from '@/components/MovieCard';
 import MovieModal from '@/components/MovieModal';
@@ -27,7 +27,7 @@ export default function BrowsePage() {
   const [error, setError] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [watchlist, setWatchlist] = useState<number[]>([]);
-  const { user } = useAuth();
+  useAuth();
 
   const getToken = () => {
     const value = `; ${document.cookie}`;
@@ -58,9 +58,10 @@ export default function BrowsePage() {
           { name: 'Horror', movies: browseData.horror },
         ]);
 
-        setWatchlist(listData.map((item: any) => item.tmdbId));
-      } catch (err: any) {
-        setError(err.message);
+        setWatchlist(listData.map((item: { tmdbId: number }) => item.tmdbId));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'An error occurred';
+        setError(message);
       } finally {
         setLoading(false);
       }

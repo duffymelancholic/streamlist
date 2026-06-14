@@ -28,8 +28,9 @@ export default function LoginPage() {
       }
 
       login(data.token, data.user);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setError(message);
     }
   };
 
