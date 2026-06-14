@@ -68,13 +68,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (token: string, userData: User) => {
     document.cookie = `token=${token}; path=/; max-age=604800`; // 7 days
     setUser(userData);
-    router.push('/browse');
+    window.location.href = '/browse';
   };
 
   const logout = () => {
     document.cookie = `token=; path=/; max-age=0`;
     setUser(null);
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   return (
