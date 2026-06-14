@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import MovieCard from '@/components/MovieCard';
 import MovieModal from '@/components/MovieModal';
 import Navbar from '@/components/Navbar';
@@ -25,9 +24,9 @@ export default function BrowsePage() {
   const [genres, setGenres] = useState<GenreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [listError, setListError] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [watchlist, setWatchlist] = useState<number[]>([]);
-  useAuth();
 
   const getToken = () => {
     const value = `; ${document.cookie}`;
@@ -73,15 +72,22 @@ export default function BrowsePage() {
   const handleWatchlistToggle = async (movie: Movie) => {
     const token = getToken();
     const isInList = watchlist.includes(movie.id);
+    setListError('');
 
     if (isInList) {
-      await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
+      const res = await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      setWatchlist((prev) => prev.filter((id) => id !== movie.id));
+      // Only update local state if the server confirmed the deletion
+      if (res.ok) {
+        setWatchlist((prev) => prev.filter((id) => id !== movie.id));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setListError(data.error || 'Failed to remove from list');
+      }
     } else {
-      await fetch('http://localhost:4000/api/list/add', {
+      const res = await fetch('http://localhost:4000/api/list/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +99,13 @@ export default function BrowsePage() {
           posterPath: movie.poster_path,
         }),
       });
-      setWatchlist((prev) => [...prev, movie.id]);
+      // Only update local state if the server confirmed the save
+      if (res.ok) {
+        setWatchlist((prev) => [...prev, movie.id]);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setListError(data.error || 'Failed to add to list');
+      }
     }
   };
 
@@ -119,6 +131,12 @@ export default function BrowsePage() {
   return (
     <div className="min-h-screen bg-[#141414] text-white">
       <Navbar />
+      {/* Inline error banner — appears when an add/remove API call fails */}
+      {listError && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-red-700 text-white text-sm px-5 py-3 rounded-lg shadow-lg">
+          {listError}
+        </div>
+      )}
       <div className="pt-20 pb-10">
         {genres.map((genre) => (
           <div key={genre.name} className="mb-8">

@@ -64,13 +64,15 @@ function SearchResults() {
     const isInList = watchlist.includes(movie.id);
 
     if (isInList) {
-      await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
+      const res = await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-      setWatchlist((prev) => prev.filter((id) => id !== movie.id));
+      if (res.ok) {
+        setWatchlist((prev) => prev.filter((id) => id !== movie.id));
+      }
     } else {
-      await fetch('http://localhost:4000/api/list/add', {
+      const res = await fetch('http://localhost:4000/api/list/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +84,9 @@ function SearchResults() {
           posterPath: movie.poster_path,
         }),
       });
-      setWatchlist((prev) => [...prev, movie.id]);
+      if (res.ok) {
+        setWatchlist((prev) => [...prev, movie.id]);
+      }
     }
   };
 
