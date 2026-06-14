@@ -1,12 +1,12 @@
+import dotenv from 'dotenv';
+// Load environment variables BEFORE importing our routes so process.env is populated
+dotenv.config();
+
 import { authRouter } from './auth';
 import { moviesRouter } from './routes/movies';
 import { watchlistRouter } from './routes/watchlist';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-
-// Load environment variables from a .env file
-dotenv.config();
 
 // Initialize the Express application
 const app = express();
