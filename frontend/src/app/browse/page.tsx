@@ -47,8 +47,8 @@ export default function BrowsePage() {
     const fetchData = async () => {
       try {
         const [browseRes, listRes] = await Promise.all([
-          fetch('http://localhost:4000/api/movies/browse'),
-          fetch('http://localhost:4000/api/list', {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/movies/browse`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list`, {
             headers: { Authorization: `Bearer ${getToken()}` },
           }),
         ]);
@@ -90,7 +90,7 @@ export default function BrowsePage() {
     setListError('');
 
     if (isInList) {
-      const res = await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/remove/${movie.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -102,7 +102,7 @@ export default function BrowsePage() {
         setListError(data.error || 'Failed to remove from list');
       }
     } else {
-      const res = await fetch('http://localhost:4000/api/list/add', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

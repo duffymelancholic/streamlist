@@ -45,8 +45,8 @@ function SearchResults() {
       setLoading(true);
       try {
         const [searchRes, listRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/movies/search?query=${encodeURIComponent(query)}`),
-          fetch('http://localhost:4000/api/list', {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/movies/search?query=${encodeURIComponent(query)}`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list`, {
             headers: { Authorization: `Bearer ${getToken()}` },
           }),
         ]);
@@ -72,7 +72,7 @@ function SearchResults() {
     const isInList = watchlist.includes(movie.id);
 
     if (isInList) {
-      const res = await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/remove/${movie.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -81,7 +81,7 @@ function SearchResults() {
         setWatchlist((prev) => prev.filter((id) => id !== movie.id));
       }
     } else {
-      const res = await fetch('http://localhost:4000/api/list/add', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

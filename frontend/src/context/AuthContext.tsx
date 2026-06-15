@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // We explicitly send the token in the Authorization header to avoid CORS credential issues
-        const res = await fetch('http://localhost:4000/api/auth/me', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

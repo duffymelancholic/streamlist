@@ -46,7 +46,7 @@ export default function MyListPage() {
   useEffect(() => {
     const fetchList = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/list', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list`, {
           headers: { Authorization: `Bearer ${getToken()}` },
         });
         if (res.status === 401) { handleAuthError(); return; }
@@ -65,7 +65,7 @@ export default function MyListPage() {
 
   const openModal = async (tmdbId: number) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/movies/details/${tmdbId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/movies/details/${tmdbId}`);
       if (!res.ok) return;
       const data = await res.json();
       setSelectedMovie(data);
@@ -75,7 +75,7 @@ export default function MyListPage() {
   };
 
   const handleRemove = async (tmdbId: number) => {
-    const res = await fetch(`http://localhost:4000/api/list/remove/${tmdbId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/remove/${tmdbId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${getToken()}` },
     });
@@ -92,14 +92,14 @@ export default function MyListPage() {
     const isInList = watchlistIds.includes(movie.id);
 
     if (isInList) {
-      await fetch(`http://localhost:4000/api/list/remove/${movie.id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/remove/${movie.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
       setItems((prev) => prev.filter((item) => item.tmdbId !== movie.id));
       setWatchlistIds((prev) => prev.filter((id) => id !== movie.id));
     } else {
-      const res = await fetch('http://localhost:4000/api/list/add', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/list/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
